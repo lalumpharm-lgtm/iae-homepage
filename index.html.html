@@ -1,0 +1,989 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>IAE — Institute for Academic Excellence | EdSaaS Platform</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,600;0,9..144,700;1,9..144,300&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ─── Design Tokens ─────────────────────────────── */
+  :root {
+    --bg:         oklch(0.98 0.012 80);
+    --bg-alt:     oklch(0.94 0.018 80);
+    --bg-card:    oklch(0.97 0.01  80);
+    --border:     oklch(0.85 0.015 80);
+    --text:       oklch(0.18 0.025 60);
+    --text-mid:   oklch(0.42 0.025 70);
+    --text-soft:  oklch(0.60 0.018 75);
+    --accent:     oklch(0.42 0.16  250);   /* deep indigo-blue — EdSaaS authority */
+    --accent2:    oklch(0.62 0.14  200);   /* teal data-viz pop */
+    --accent3:    oklch(0.72 0.13   95);   /* amber highlight */
+    --accent-ink: oklch(0.28 0.10  250);   /* darkened accent for text */
+    --radius-sm:  4px;
+    --radius:     8px;
+    --radius-lg:  16px;
+    --ease:       cubic-bezier(0.16, 1, 0.3, 1);
+    --font-head:  'Fraunces', Georgia, serif;
+    --font-body:  'Space Grotesk', system-ui, sans-serif;
+    --font-mono:  'JetBrains Mono', monospace;
+    --max-w:      1280px;
+  }
+
+  /* ─── Reset ────────────────────────────────────── */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    line-height: 1.7;
+    -webkit-font-smoothing: antialiased;
+  }
+  a { color: inherit; text-decoration: none; }
+  img { display: block; max-width: 100%; }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+  /* ─── Utility ───────────────────────────────────── */
+  .container { width: 100%; max-width: var(--max-w); margin: 0 auto; padding: 0 32px; }
+  .mono { font-family: var(--font-mono); font-size: 0.78rem; letter-spacing: 0.08em; }
+  .tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: oklch(0.90 0.04 250); color: var(--accent-ink);
+    border: 1px solid oklch(0.80 0.06 250);
+    padding: 4px 12px; border-radius: 100px;
+    font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+  }
+  .tag::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); flex-shrink: 0; }
+
+  /* ─── NAV ───────────────────────────────────────── */
+  nav {
+    position: sticky; top: 0; z-index: 100;
+    background: oklch(0.98 0.012 80 / 0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-inner {
+    display: flex; align-items: center; gap: 40px;
+    height: 64px; max-width: var(--max-w); margin: 0 auto; padding: 0 32px;
+  }
+  .nav-logo {
+    display: flex; align-items: baseline; gap: 10px; flex-shrink: 0;
+  }
+  .nav-logo-mark {
+    font-family: var(--font-head); font-weight: 700; font-size: 1.5rem;
+    color: var(--accent-ink); letter-spacing: -0.02em;
+  }
+  .nav-logo-sub {
+    font-family: var(--font-mono); font-size: 0.65rem; color: var(--text-soft);
+    letter-spacing: 0.12em; text-transform: uppercase; padding-bottom: 2px;
+  }
+  .nav-links { display: flex; align-items: center; gap: 28px; margin-left: auto; }
+  .nav-links a {
+    font-size: 0.85rem; font-weight: 500; color: var(--text-mid);
+    transition: color 150ms; position: relative;
+  }
+  .nav-links a:hover { color: var(--text); }
+  .nav-cta {
+    margin-left: 8px;
+    background: var(--accent); color: #fff !important;
+    padding: 9px 20px; border-radius: var(--radius-sm);
+    font-size: 0.82rem !important; font-weight: 600 !important;
+    transition: background 150ms var(--ease), transform 150ms var(--ease);
+  }
+  .nav-cta:hover { background: var(--accent-ink) !important; transform: translateY(-1px); }
+
+  /* ─── HERO ──────────────────────────────────────── */
+  .hero {
+    padding: 96px 0 80px;
+    position: relative; overflow: hidden;
+  }
+  .hero-bg-grid {
+    position: absolute; inset: 0; z-index: 0;
+    background-image:
+      linear-gradient(to right, oklch(0.82 0.04 250 / 0.25) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.82 0.04 250 / 0.25) 1px, transparent 1px);
+    background-size: 48px 48px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 30%, transparent 100%);
+  }
+  .hero-inner {
+    position: relative; z-index: 1;
+    display: grid; grid-template-columns: 1fr 420px; gap: 64px; align-items: center;
+  }
+  .hero-eyebrow { margin-bottom: 24px; }
+  .hero-h1 {
+    font-family: var(--font-head);
+    font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    font-weight: 700; line-height: 1.08; letter-spacing: -0.03em;
+    color: var(--text); margin-bottom: 28px;
+  }
+  .hero-h1 em { font-style: normal; color: var(--accent); }
+  .hero-h1 .hi { color: var(--accent2); }
+  .hero-desc {
+    font-size: 1.08rem; color: var(--text-mid); max-width: 52ch; line-height: 1.75;
+    margin-bottom: 40px;
+  }
+  .hero-actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
+  .btn-primary {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--accent); color: #fff;
+    padding: 14px 28px; border-radius: var(--radius-sm);
+    font-weight: 600; font-size: 0.92rem;
+    transition: background 200ms var(--ease), transform 200ms var(--ease), box-shadow 200ms var(--ease);
+    box-shadow: 0 4px 16px oklch(0.42 0.16 250 / 0.3);
+  }
+  .btn-primary:hover { background: var(--accent-ink); transform: translateY(-2px); box-shadow: 0 8px 24px oklch(0.42 0.16 250 / 0.4); }
+  .btn-ghost {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1.5px solid var(--border); color: var(--text-mid);
+    padding: 13px 24px; border-radius: var(--radius-sm);
+    font-weight: 500; font-size: 0.92rem;
+    transition: border-color 200ms, color 200ms, transform 200ms var(--ease);
+  }
+  .btn-ghost:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+
+  /* Hero Stats Ticker */
+  .hero-stats {
+    margin-top: 56px;
+    display: flex; gap: 40px; flex-wrap: wrap;
+    padding-top: 40px; border-top: 1px solid var(--border);
+  }
+  .stat-item { display: flex; flex-direction: column; gap: 4px; }
+  .stat-num {
+    font-family: var(--font-head); font-size: 2.4rem; font-weight: 700;
+    color: var(--accent-ink); letter-spacing: -0.04em; line-height: 1;
+  }
+  .stat-label { font-size: 0.78rem; color: var(--text-soft); font-weight: 500; letter-spacing: 0.04em; }
+
+  /* Hero Dashboard Mockup */
+  .hero-visual {
+    background: oklch(0.14 0.04 250);
+    border-radius: var(--radius-lg);
+    border: 1px solid oklch(0.25 0.06 250);
+    overflow: hidden;
+    box-shadow: 0 24px 64px oklch(0.14 0.04 250 / 0.35), 0 4px 16px oklch(0.14 0.04 250 / 0.2);
+    transform: perspective(1000px) rotateY(-4deg) rotateX(2deg);
+    transition: transform 400ms var(--ease);
+  }
+  .hero-visual:hover { transform: perspective(1000px) rotateY(-1deg) rotateX(0deg); }
+  .dash-topbar {
+    background: oklch(0.18 0.04 250); padding: 12px 16px;
+    display: flex; align-items: center; gap: 10px;
+    border-bottom: 1px solid oklch(0.25 0.06 250);
+  }
+  .dot { width: 10px; height: 10px; border-radius: 50%; }
+  .dot.r { background: #ff5f56; } .dot.y { background: #ffbd2e; } .dot.g { background: #27c93f; }
+  .dash-url {
+    flex: 1; background: oklch(0.22 0.04 250); border-radius: 4px;
+    padding: 5px 12px; font-family: var(--font-mono); font-size: 0.68rem;
+    color: oklch(0.65 0.06 200); text-align: center;
+  }
+  .dash-body { padding: 20px 16px; display: flex; flex-direction: column; gap: 14px; }
+  .dash-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .dash-card {
+    background: oklch(0.20 0.04 250); border-radius: 8px;
+    padding: 14px; border: 1px solid oklch(0.28 0.06 250);
+  }
+  .dash-card-label { font-size: 0.62rem; color: oklch(0.55 0.06 250); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px; }
+  .dash-card-val { font-family: var(--font-head); font-size: 1.6rem; font-weight: 700; color: #fff; letter-spacing: -0.03em; }
+  .dash-card-delta { font-size: 0.68rem; color: oklch(0.7 0.14 160); margin-top: 2px; font-family: var(--font-mono); }
+  .dash-chart { background: oklch(0.20 0.04 250); border-radius: 8px; padding: 14px; border: 1px solid oklch(0.28 0.06 250); }
+  .chart-title { font-size: 0.62rem; color: oklch(0.55 0.06 250); font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 12px; }
+  .chart-bars { display: flex; align-items: flex-end; gap: 5px; height: 60px; }
+  .bar {
+    flex: 1; border-radius: 3px 3px 0 0;
+    background: oklch(0.42 0.16 250 / 0.5);
+    transition: background 300ms;
+  }
+  .bar.active { background: var(--accent2); }
+  .bar:hover { background: oklch(0.62 0.14 200 / 0.8); }
+  .dash-progress { display: flex; flex-direction: column; gap: 8px; }
+  .prog-row { display: flex; flex-direction: column; gap: 4px; }
+  .prog-label-row { display: flex; justify-content: space-between; font-size: 0.65rem; color: oklch(0.65 0.04 250); font-family: var(--font-mono); }
+  .prog-track { height: 5px; background: oklch(0.28 0.06 250); border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; border-radius: 99px; background: var(--accent2); }
+
+  /* ─── MARQUEE STRIP ─────────────────────────────── */
+  .marquee-strip {
+    background: var(--accent);
+    color: #fff; padding: 12px 0; overflow: hidden;
+    white-space: nowrap;
+  }
+  .marquee-track {
+    display: inline-flex; gap: 0;
+    animation: marquee 28s linear infinite;
+  }
+  .marquee-item {
+    display: inline-flex; align-items: center; gap: 12px;
+    padding: 0 32px;
+    font-family: var(--font-mono); font-size: 0.72rem;
+    letter-spacing: 0.1em; text-transform: uppercase; opacity: 0.9;
+  }
+  .marquee-sep { opacity: 0.4; font-size: 1rem; }
+  @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+  /* ─── SECTION BASE ──────────────────────────────── */
+  section { padding: 96px 0; }
+  .section-tag { margin-bottom: 16px; }
+  .section-h2 {
+    font-family: var(--font-head); font-size: clamp(2rem, 3vw, 2.8rem);
+    font-weight: 700; letter-spacing: -0.025em; line-height: 1.12;
+    color: var(--text); margin-bottom: 16px;
+  }
+  .section-lead { font-size: 1.05rem; color: var(--text-mid); max-width: 58ch; line-height: 1.75; }
+
+  /* ─── PRODUCTS (SOFTWARE) ───────────────────────── */
+  .products { background: var(--bg-alt); }
+  .products-grid {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px;
+    border: 2px solid var(--border); border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .product-card {
+    background: var(--bg-card); padding: 36px 32px;
+    border-right: 2px solid var(--border);
+    position: relative; overflow: hidden;
+    transition: background 200ms;
+  }
+  .product-card:last-child { border-right: none; }
+  .product-card:hover { background: #fff; }
+  .product-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+    background: var(--accent); transform: scaleX(0); transform-origin: left;
+    transition: transform 300ms var(--ease);
+  }
+  .product-card:hover::before { transform: scaleX(1); }
+  .product-index {
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--text-soft);
+    letter-spacing: 0.12em; margin-bottom: 16px;
+  }
+  .product-icon {
+    width: 44px; height: 44px; border-radius: var(--radius);
+    background: oklch(0.90 0.04 250); display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 20px;
+  }
+  .product-name {
+    font-family: var(--font-head); font-size: 1.25rem; font-weight: 600;
+    color: var(--text); margin-bottom: 10px; letter-spacing: -0.02em;
+  }
+  .product-desc { font-size: 0.88rem; color: var(--text-mid); line-height: 1.65; margin-bottom: 20px; }
+  .product-link {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 0.8rem; font-weight: 600; color: var(--accent); letter-spacing: 0.02em;
+  }
+  .product-link::after { content: '→'; transition: transform 200ms var(--ease); }
+  .product-card:hover .product-link::after { transform: translateX(4px); }
+
+  /* ─── METRICS BENTO ─────────────────────────────── */
+  .metrics { background: oklch(0.14 0.04 250); color: #fff; }
+  .metrics .section-h2 { color: #fff; }
+  .metrics .section-lead { color: oklch(0.70 0.04 250); }
+  .metrics .tag { background: oklch(0.22 0.06 250); color: oklch(0.80 0.08 250); border-color: oklch(0.30 0.08 250); }
+  .metrics .tag::before { background: var(--accent2); }
+  .bento {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    grid-template-rows: auto auto;
+    gap: 12px;
+  }
+  .bento-cell {
+    background: oklch(0.20 0.04 250);
+    border: 1px solid oklch(0.28 0.06 250);
+    border-radius: var(--radius-lg); padding: 28px 24px;
+    position: relative; overflow: hidden;
+  }
+  .bento-cell.span2 { grid-column: span 2; }
+  .bento-cell.span3 { grid-column: span 3; }
+  .bento-num {
+    font-family: var(--font-head); font-size: 3rem; font-weight: 700;
+    color: #fff; letter-spacing: -0.04em; line-height: 1;
+  }
+  .bento-unit { font-family: var(--font-head); font-size: 1.5rem; color: var(--accent2); }
+  .bento-label { font-size: 0.78rem; color: oklch(0.55 0.04 250); margin-top: 6px; font-weight: 500; }
+  .bento-glow {
+    position: absolute; width: 120px; height: 120px; border-radius: 50%;
+    background: var(--accent2); opacity: 0.06; filter: blur(40px);
+    bottom: -20px; right: -20px;
+  }
+  .bento-cell.accent-cell { background: var(--accent); border-color: transparent; }
+  .bento-cell.accent-cell .bento-num { color: #fff; }
+  .bento-cell.accent-cell .bento-label { color: oklch(0.80 0.08 250); }
+  .bento-pill {
+    display: inline-block; background: oklch(0.28 0.06 250);
+    padding: 3px 10px; border-radius: 99px;
+    font-family: var(--font-mono); font-size: 0.68rem; color: var(--accent2);
+    margin-bottom: 12px;
+  }
+  .bento-text { font-size: 0.88rem; color: oklch(0.65 0.04 250); line-height: 1.65; }
+
+  /* ─── PROCESS ───────────────────────────────────── */
+  .process-grid {
+    margin-top: 64px;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    position: relative;
+  }
+  .process-grid::after {
+    content: ''; position: absolute; top: 22px; left: 12.5%; right: 12.5%; height: 1px;
+    background: linear-gradient(to right, transparent, var(--border) 20%, var(--border) 80%, transparent);
+    z-index: 0;
+  }
+  .process-step { padding: 0 24px; text-align: center; position: relative; z-index: 1; }
+  .step-num {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: #fff; border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;
+    font-family: var(--font-mono); font-size: 0.78rem; font-weight: 600; color: var(--accent);
+    position: relative; z-index: 1;
+  }
+  .step-title { font-weight: 700; font-size: 0.95rem; margin-bottom: 10px; color: var(--text); }
+  .step-desc { font-size: 0.83rem; color: var(--text-mid); line-height: 1.65; }
+
+  /* ─── CONSULTING PILLARS ────────────────────────── */
+  .pillars-grid {
+    margin-top: 56px;
+    display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  }
+  .pillar-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 32px; display: flex; gap: 20px; align-items: flex-start;
+    transition: border-color 250ms, box-shadow 250ms;
+  }
+  .pillar-card:hover { border-color: var(--accent); box-shadow: 0 8px 32px oklch(0.42 0.16 250 / 0.1); }
+  .pillar-icon {
+    width: 48px; height: 48px; flex-shrink: 0;
+    background: oklch(0.90 0.04 250); border-radius: var(--radius);
+    display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
+  }
+  .pillar-title { font-weight: 700; font-size: 1rem; margin-bottom: 8px; color: var(--text); }
+  .pillar-desc { font-size: 0.85rem; color: var(--text-mid); line-height: 1.65; }
+  .pillar-tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px; }
+  .micro-tag {
+    background: var(--bg-alt); border: 1px solid var(--border);
+    padding: 3px 8px; border-radius: 4px;
+    font-family: var(--font-mono); font-size: 0.62rem; color: var(--text-soft);
+    letter-spacing: 0.06em; text-transform: uppercase;
+  }
+
+  /* ─── CTA BAND ──────────────────────────────────── */
+  .cta-band {
+    background: oklch(0.42 0.16 250);
+    padding: 80px 0; text-align: center; position: relative; overflow: hidden;
+  }
+  .cta-band-bg {
+    position: absolute; inset: 0;
+    background-image:
+      linear-gradient(to right, oklch(0.80 0.10 250 / 0.15) 1px, transparent 1px),
+      linear-gradient(to bottom, oklch(0.80 0.10 250 / 0.15) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  .cta-band-inner { position: relative; z-index: 1; }
+  .cta-band h2 {
+    font-family: var(--font-head); font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 700; color: #fff; letter-spacing: -0.025em; margin-bottom: 16px;
+  }
+  .cta-band p { font-size: 1.05rem; color: oklch(0.88 0.06 250); max-width: 48ch; margin: 0 auto 36px; line-height: 1.75; }
+  .btn-white {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: #fff; color: var(--accent);
+    padding: 14px 32px; border-radius: var(--radius-sm);
+    font-weight: 700; font-size: 0.92rem;
+    transition: transform 200ms var(--ease), box-shadow 200ms var(--ease);
+    box-shadow: 0 4px 16px oklch(0.14 0.04 250 / 0.25);
+  }
+  .btn-white:hover { transform: translateY(-2px); box-shadow: 0 8px 32px oklch(0.14 0.04 250 / 0.35); }
+  .btn-outline-white {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 2px solid oklch(1 0 0 / 0.35); color: #fff;
+    padding: 12px 28px; border-radius: var(--radius-sm);
+    font-weight: 600; font-size: 0.92rem;
+    transition: border-color 200ms, background 200ms, transform 200ms var(--ease);
+  }
+  .btn-outline-white:hover { border-color: #fff; background: oklch(1 0 0 / 0.08); transform: translateY(-2px); }
+  .cta-actions { display: flex; justify-content: center; gap: 16px; flex-wrap: wrap; }
+
+  /* ─── TESTIMONIALS ──────────────────────────────── */
+  .testimonials { background: var(--bg-alt); }
+  .testi-grid {
+    margin-top: 56px;
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+  }
+  .testi-card {
+    background: #fff; border: 1px solid var(--border); border-radius: var(--radius-lg);
+    padding: 28px; display: flex; flex-direction: column; gap: 16px;
+    transition: box-shadow 250ms, transform 250ms var(--ease);
+  }
+  .testi-card:hover { box-shadow: 0 8px 32px oklch(0.42 0.16 250 / 0.08); transform: translateY(-4px); }
+  .testi-quote { font-size: 2rem; color: var(--accent); line-height: 1; font-family: serif; }
+  .testi-text { font-size: 0.9rem; color: var(--text-mid); line-height: 1.7; flex: 1; }
+  .testi-author { display: flex; align-items: center; gap: 12px; padding-top: 16px; border-top: 1px solid var(--border); }
+  .testi-avatar {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: oklch(0.90 0.04 250); display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.8rem; color: var(--accent-ink);
+    flex-shrink: 0;
+  }
+  .testi-name { font-weight: 600; font-size: 0.88rem; }
+  .testi-role { font-size: 0.75rem; color: var(--text-soft); }
+
+  /* ─── FOOTER ────────────────────────────────────── */
+  footer {
+    background: oklch(0.12 0.03 250); color: oklch(0.70 0.04 250);
+    padding: 64px 0 32px;
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 48px; margin-bottom: 48px;
+  }
+  .footer-brand p { font-size: 0.85rem; line-height: 1.7; margin-top: 16px; max-width: 32ch; color: oklch(0.55 0.04 250); }
+  .footer-col h4 { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.12em; color: oklch(0.90 0.04 250); font-weight: 600; margin-bottom: 16px; }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col li a { font-size: 0.85rem; color: oklch(0.55 0.04 250); transition: color 150ms; }
+  .footer-col li a:hover { color: oklch(0.85 0.08 200); }
+  .footer-bottom {
+    padding-top: 24px; border-top: 1px solid oklch(0.22 0.04 250);
+    display: flex; justify-content: space-between; align-items: center;
+    font-size: 0.78rem; color: oklch(0.40 0.04 250);
+  }
+  .footer-logo { font-family: var(--font-head); font-weight: 700; font-size: 1.3rem; color: #fff; }
+
+  /* ─── ANIMATIONS ────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .fade-up { animation: fadeUp 0.6s var(--ease) both; }
+  .delay-1 { animation-delay: 0.1s; }
+  .delay-2 { animation-delay: 0.2s; }
+  .delay-3 { animation-delay: 0.3s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .fade-up { animation: none; }
+    .hero-visual { transform: none; }
+    .marquee-track { animation: none; }
+  }
+
+  /* ─── RESPONSIVE ────────────────────────────────── */
+  @media (max-width: 1024px) {
+    .hero-inner { grid-template-columns: 1fr; }
+    .hero-visual { display: none; }
+    .products-grid { grid-template-columns: 1fr 1fr; }
+    .products-grid .product-card:nth-child(2) { border-right: none; }
+    .products-grid .product-card:nth-child(3) { border-right: none; grid-column: span 2; }
+    .bento { grid-template-columns: repeat(2, 1fr); }
+    .bento-cell.span2 { grid-column: span 1; }
+    .bento-cell.span3 { grid-column: span 2; }
+    .process-grid { grid-template-columns: 1fr 1fr; gap: 32px; }
+    .process-grid::after { display: none; }
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    .container { padding: 0 20px; }
+    section { padding: 64px 0; }
+    .nav-links { display: none; }
+    .products-grid { grid-template-columns: 1fr; }
+    .products-grid .product-card { border-right: none; border-bottom: 2px solid var(--border); }
+    .pillars-grid { grid-template-columns: 1fr; }
+    .testi-grid { grid-template-columns: 1fr; }
+    .bento { grid-template-columns: 1fr 1fr; }
+    .process-grid { grid-template-columns: 1fr; }
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    .footer-bottom { flex-direction: column; gap: 8px; text-align: center; }
+    .hero-stats { gap: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ─── NAV ──────────────────────────────────────── -->
+<nav>
+  <div class="nav-inner">
+    <div class="nav-logo">
+      <span class="nav-logo-mark">IAE</span>
+      <span class="nav-logo-sub">EdSaaS Platform</span>
+    </div>
+    <div class="nav-links">
+      <a href="#">Platform</a>
+      <a href="#">Consulting</a>
+      <a href="#">Rankings &amp; NAAC</a>
+      <a href="#">Resources</a>
+      <a href="#">Events</a>
+      <a href="#" class="nav-cta">Get a Free Audit →</a>
+    </div>
+  </div>
+</nav>
+
+<!-- ─── HERO ──────────────────────────────────────── -->
+<section class="hero">
+  <div class="hero-bg-grid"></div>
+  <div class="container">
+    <div class="hero-inner">
+      <!-- Copy -->
+      <div>
+        <div class="hero-eyebrow fade-up">
+          <span class="tag">India's #1 EdSaaS Platform for HEIs</span>
+        </div>
+        <h1 class="hero-h1 fade-up delay-1">
+          Turn <em>Accreditation Data</em><br/>
+          into <span class="hi">Institutional</span><br/>
+          Excellence
+        </h1>
+        <p class="hero-desc fade-up delay-2">
+          IAE's data-driven software suite and expert consulting services help Higher Educational Institutions achieve NAAC A++, top NIRF rankings, and NEP 2020 compliance — all in one unified platform.
+        </p>
+        <div class="hero-actions fade-up delay-3">
+          <a href="#" class="btn-primary">Start Free Platform Trial →</a>
+          <a href="#" class="btn-ghost">📊 See Live Demo</a>
+        </div>
+        <div class="hero-stats fade-up delay-3">
+          <div class="stat-item">
+            <span class="stat-num">2,000<span style="color:var(--accent2);font-size:1.8rem">+</span></span>
+            <span class="stat-label">Institutions Served</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">15<span style="color:var(--accent2);font-size:1.8rem">K+</span></span>
+            <span class="stat-label">Faculty Trained</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">98<span style="color:var(--accent2);font-size:1.4rem">%</span></span>
+            <span class="stat-label">Client Satisfaction</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-num">8<span style="color:var(--accent2);font-size:1.4rem">yr</span></span>
+            <span class="stat-label">Domain Expertise</span>
+          </div>
+        </div>
+      </div>
+      <!-- Dashboard mockup -->
+      <div class="hero-visual fade-up delay-2">
+        <div class="dash-topbar">
+          <div class="dot r"></div><div class="dot y"></div><div class="dot g"></div>
+          <div class="dash-url">app.iae.education/dashboard</div>
+        </div>
+        <div class="dash-body">
+          <div class="dash-row">
+            <div class="dash-card">
+              <div class="dash-card-label">NIRF Score</div>
+              <div class="dash-card-val">74.3</div>
+              <div class="dash-card-delta">↑ +6.2 from last cycle</div>
+            </div>
+            <div class="dash-card">
+              <div class="dash-card-label">NAAC Grade</div>
+              <div class="dash-card-val" style="color:var(--accent2);">A+</div>
+              <div class="dash-card-delta">↑ Upgraded from A</div>
+            </div>
+          </div>
+          <div class="dash-chart">
+            <div class="chart-title">NIRF Parameter Completion</div>
+            <div class="chart-bars">
+              <div class="bar" style="height:45%"></div>
+              <div class="bar" style="height:60%"></div>
+              <div class="bar" style="height:72%"></div>
+              <div class="bar active" style="height:88%"></div>
+              <div class="bar" style="height:65%"></div>
+              <div class="bar" style="height:80%"></div>
+              <div class="bar active" style="height:93%"></div>
+              <div class="bar" style="height:55%"></div>
+            </div>
+          </div>
+          <div class="dash-card">
+            <div class="dash-card-label">Readiness Score by Criterion</div>
+            <div class="dash-progress">
+              <div class="prog-row">
+                <div class="prog-label-row"><span>Teaching &amp; Learning</span><span>91%</span></div>
+                <div class="prog-track"><div class="prog-fill" style="width:91%"></div></div>
+              </div>
+              <div class="prog-row">
+                <div class="prog-label-row"><span>Research &amp; Innovation</span><span>74%</span></div>
+                <div class="prog-track"><div class="prog-fill" style="width:74%;background:var(--accent3)"></div></div>
+              </div>
+              <div class="prog-row">
+                <div class="prog-label-row"><span>Governance &amp; Leadership</span><span>83%</span></div>
+                <div class="prog-track"><div class="prog-fill" style="width:83%"></div></div>
+              </div>
+              <div class="prog-row">
+                <div class="prog-label-row"><span>Infrastructure</span><span>68%</span></div>
+                <div class="prog-track"><div class="prog-fill" style="width:68%;background:oklch(0.65 0.15 30)"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── MARQUEE ────────────────────────────────────── -->
+<div class="marquee-strip" aria-hidden="true">
+  <div class="marquee-track">
+    <!-- 2× for seamless loop -->
+    <span class="marquee-item">NAAC Accreditation <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NIRF India Rankings <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NBA Accreditation <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NEP 2020 Compliance <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">IDP &amp; Curriculum Design <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">Faculty Development <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NAAC Accreditation <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NIRF India Rankings <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NBA Accreditation <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">NEP 2020 Compliance <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">IDP &amp; Curriculum Design <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">Faculty Development <span class="marquee-sep">✦</span></span>
+  </div>
+</div>
+
+<!-- ─── SOFTWARE PRODUCTS ─────────────────────────── -->
+<section class="products">
+  <div class="container">
+    <div class="section-tag"><span class="tag">Software Suite</span></div>
+    <h2 class="section-h2">Five Powerful Platforms.<br/>One Unified EdSaaS Ecosystem.</h2>
+    <p class="section-lead">Each tool is purpose-built for Indian HEIs, pre-loaded with regulatory frameworks, and backed by real institutional data.</p>
+
+    <div class="products-grid">
+      <div class="product-card">
+        <div class="product-index mono">01 / SOFTWARE</div>
+        <div class="product-icon">📊</div>
+        <div class="product-name">NIRF Catalyst</div>
+        <p class="product-desc">Comprehensive data management and analytics to benchmark, track, and accelerate your institution's NIRF India Rankings performance across all parameters.</p>
+        <a href="#" class="product-link">Explore NIRF Catalyst</a>
+      </div>
+      <div class="product-card">
+        <div class="product-index mono">02 / SOFTWARE</div>
+        <div class="product-icon">👩‍🏫</div>
+        <div class="product-name">Faculty Information System (FIS)</div>
+        <p class="product-desc">360° faculty performance tracking — publications, research output, certifications, and contributions — aligned to NAAC and NIRF criteria.</p>
+        <a href="#" class="product-link">Explore FIS</a>
+      </div>
+      <div class="product-card">
+        <div class="product-index mono">03 / SOFTWARE</div>
+        <div class="product-icon">🏅</div>
+        <div class="product-name">NBA Navigator</div>
+        <p class="product-desc">End-to-end NBA accreditation prep tool. Map outcomes, manage SAR documentation, and track compliance gaps against current NBA manuals.</p>
+        <a href="#" class="product-link">Explore NBA Navigator</a>
+      </div>
+      <div class="product-card">
+        <div class="product-index mono">04 / SOFTWARE</div>
+        <div class="product-icon">🔭</div>
+        <div class="product-name">Professor 360</div>
+        <p class="product-desc">AI-powered academic performance review and career development platform. From peer feedback to student ratings — structured, objective, and actionable.</p>
+        <a href="#" class="product-link">Explore Professor 360</a>
+      </div>
+      <div class="product-card">
+        <div class="product-index mono">05 / SOFTWARE</div>
+        <div class="product-icon">🎓</div>
+        <div class="product-name">NAAC Simulator</div>
+        <p class="product-desc">Simulate your NAAC self-study report, run gap analyses across all seven criteria, and receive predictive grading before your actual assessment cycle.</p>
+        <a href="#" class="product-link">Explore NAAC Simulator</a>
+      </div>
+      <!-- Feature callout -->
+      <div class="product-card" style="background: oklch(0.90 0.04 250); border: none;">
+        <div class="product-index mono" style="color:var(--accent-ink)">WHY IAE</div>
+        <div style="margin-top: 16px;">
+          <div style="display:flex;flex-direction:column;gap:14px;">
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span style="color:var(--accent2);font-size:1rem;flex-shrink:0;margin-top:2px">✓</span>
+              <span style="font-size:0.88rem;color:var(--accent-ink);font-weight:500">Pre-loaded with NAAC/NIRF regulatory frameworks</span>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span style="color:var(--accent2);font-size:1rem;flex-shrink:0;margin-top:2px">✓</span>
+              <span style="font-size:0.88rem;color:var(--accent-ink);font-weight:500">Integrated dashboards — no data silos</span>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span style="color:var(--accent2);font-size:1rem;flex-shrink:0;margin-top:2px">✓</span>
+              <span style="font-size:0.88rem;color:var(--accent-ink);font-weight:500">Dedicated onboarding &amp; expert support</span>
+            </div>
+            <div style="display:flex;gap:12px;align-items:flex-start">
+              <span style="color:var(--accent2);font-size:1rem;flex-shrink:0;margin-top:2px">✓</span>
+              <span style="font-size:0.88rem;color:var(--accent-ink);font-weight:500">Annual updates aligned with UGC / NAAC circulars</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── METRICS ────────────────────────────────────── -->
+<section class="metrics">
+  <div class="container">
+    <div class="section-tag"><span class="tag">By the Numbers</span></div>
+    <h2 class="section-h2">Data That Speaks for Itself</h2>
+    <p class="section-lead">Measurable outcomes from real institutions across India and health sciences.</p>
+
+    <div class="bento">
+      <!-- row 1 -->
+      <div class="bento-cell accent-cell">
+        <div class="bento-num">2,000<span class="bento-unit">+</span></div>
+        <div class="bento-label">HEIs Served Across India</div>
+        <div class="bento-glow"></div>
+      </div>
+      <div class="bento-cell">
+        <div class="bento-num">15<span class="bento-unit">K+</span></div>
+        <div class="bento-label">Faculty Members Trained</div>
+        <div class="bento-glow"></div>
+      </div>
+      <div class="bento-cell">
+        <div class="bento-pill">avg. lift</div>
+        <div class="bento-num">+8.4</div>
+        <div class="bento-label">NIRF Score Points Gained per Client</div>
+        <div class="bento-glow"></div>
+      </div>
+      <div class="bento-cell">
+        <div class="bento-num">98<span class="bento-unit">%</span></div>
+        <div class="bento-label">Client Satisfaction Rate</div>
+        <div class="bento-glow"></div>
+      </div>
+
+      <!-- row 2 -->
+      <div class="bento-cell span2">
+        <div class="bento-pill">partner network</div>
+        <div style="display:flex;gap:32px;margin-top:8px;flex-wrap:wrap">
+          <div>
+            <div class="bento-num" style="font-size:2rem">40+</div>
+            <div class="bento-label">State &amp; Central Universities</div>
+          </div>
+          <div>
+            <div class="bento-num" style="font-size:2rem">60+</div>
+            <div class="bento-label">Expert Advisors on Panel</div>
+          </div>
+          <div>
+            <div class="bento-num" style="font-size:2rem">12+</div>
+            <div class="bento-label">National Workshops / Year</div>
+          </div>
+        </div>
+        <div class="bento-glow"></div>
+      </div>
+      <div class="bento-cell span2" style="background: oklch(0.22 0.10 200); border-color: oklch(0.32 0.12 200);">
+        <div class="bento-pill" style="background:oklch(0.32 0.12 200);color:var(--accent2)">Telangana Govt. Partner</div>
+        <div class="bento-text" style="margin-top:12px;color:oklch(0.75 0.06 200)">
+          IAE is the official knowledge partner of the Collegiate &amp; Technical Education Department, Govt. of Telangana — delivering state-wide NAAC, NIRF &amp; NEP faculty programmes at scale.
+        </div>
+        <div style="margin-top:16px;font-family:var(--font-mono);font-size:0.72rem;color:var(--accent2)">GOVT. OF TELANGANA · UGC · NAAC · NIRF · NBA</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── HOW IT WORKS ───────────────────────────────── -->
+<section>
+  <div class="container">
+    <div class="section-tag"><span class="tag">How It Works</span></div>
+    <h2 class="section-h2">From Audit to Accreditation<br/>in Four Steps</h2>
+    <p class="section-lead">Our data-first methodology is structured, repeatable, and proven at over 2,000 institutions.</p>
+
+    <div class="process-grid">
+      <div class="process-step">
+        <div class="step-num">01</div>
+        <div class="step-title">Institutional Baseline Audit</div>
+        <p class="step-desc">We analyse your existing NIRF/NAAC data, identify critical gaps, and benchmark you against peer institutions using our proprietary analytics tools.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">02</div>
+        <div class="step-title">Platform Onboarding</div>
+        <p class="step-desc">Your team is set up on the relevant IAE software modules. Data pipelines are configured and all stakeholders are trained within 2 weeks.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">03</div>
+        <div class="step-title">Strategy &amp; Roadmap</div>
+        <p class="step-desc">Our expert consultants co-develop a time-bound IDP with quantified targets for ranking improvement, accreditation upgrade, and NEP compliance.</p>
+      </div>
+      <div class="process-step">
+        <div class="step-num">04</div>
+        <div class="step-title">Continuous Monitoring</div>
+        <p class="step-desc">Live dashboards track progress in real time. Quarterly reviews and annual workshops ensure you stay on course every cycle.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CONSULTING PILLARS ────────────────────────── -->
+<section style="background: var(--bg-alt);">
+  <div class="container">
+    <div class="section-tag"><span class="tag">Consulting Services</span></div>
+    <h2 class="section-h2">Expert Advisory for Every<br/>Accreditation &amp; Ranking Need</h2>
+    <p class="section-lead">Specialist consultants — all former senior academics — working directly with your leadership team.</p>
+
+    <div class="pillars-grid">
+      <div class="pillar-card">
+        <div class="pillar-icon">🏆</div>
+        <div>
+          <div class="pillar-title">NIRF Rankings Consulting</div>
+          <p class="pillar-desc">End-to-end support for NIRF data submission, parameter optimisation, and gap analysis to push your institution into the top 100.</p>
+          <div class="pillar-tags">
+            <span class="micro-tag">Data Analysis</span>
+            <span class="micro-tag">Reporting</span>
+            <span class="micro-tag">Benchmarking</span>
+          </div>
+        </div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">🎯</div>
+        <div>
+          <div class="pillar-title">NAAC Accreditation Consulting</div>
+          <p class="pillar-desc">Full-cycle NAAC preparation: SSR drafting, peer team visit readiness, IQAC strengthening, and predictive grade simulation.</p>
+          <div class="pillar-tags">
+            <span class="micro-tag">SSR Drafting</span>
+            <span class="micro-tag">IQAC Setup</span>
+            <span class="micro-tag">Peer Readiness</span>
+          </div>
+        </div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">📐</div>
+        <div>
+          <div class="pillar-title">NBA Accreditation</div>
+          <p class="pillar-desc">Outcome-based education framework, SAR preparation, attainment calculations, and NBA visit coaching for Engineering &amp; Management programmes.</p>
+          <div class="pillar-tags">
+            <span class="micro-tag">OBE Framework</span>
+            <span class="micro-tag">SAR</span>
+            <span class="micro-tag">CO/PO Mapping</span>
+          </div>
+        </div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">🗺️</div>
+        <div>
+          <div class="pillar-title">Institution Development Plan (IDP)</div>
+          <p class="pillar-desc">A comprehensive 5-year roadmap that directly aligns institutional strategy with NIRF ranking improvement and NAAC accreditation goals.</p>
+          <div class="pillar-tags">
+            <span class="micro-tag">Strategic Planning</span>
+            <span class="micro-tag">NEP 2020</span>
+            <span class="micro-tag">Roadmap</span>
+          </div>
+        </div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">📚</div>
+        <div>
+          <div class="pillar-title">Curriculum &amp; Credit Framework</div>
+          <p class="pillar-desc">Redesign curricula aligned to NEP 2020 credit frameworks, CBCS, and global best practices — with regulatory approval support.</p>
+          <div class="pillar-tags">
+            <span class="micro-tag">NEP 2020</span>
+            <span class="micro-tag">CBCS</span>
+            <span class="micro-tag">Curriculum Audit</span>
+          </div>
+        </div>
+      </div>
+      <div class="pillar-card">
+        <div class="pillar-icon">🔬</div>
+        <div>
+          <div class="pillar-title">Academic Administrative Audit (AAA)</div>
+          <p class="pillar-desc">Holistic audit of academic processes, governance structures, and administrative systems — with actionable improvement reports.</p>
+          <div class="pillar-tags">
+            <span class="micro-tag">Governance</span>
+            <span class="micro-tag">Process Audit</span>
+            <span class="micro-tag">Leadership</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── TESTIMONIALS ──────────────────────────────── -->
+<section class="testimonials">
+  <div class="container">
+    <div class="section-tag"><span class="tag">Client Stories</span></div>
+    <h2 class="section-h2">What Institutional Leaders Say</h2>
+
+    <div class="testi-grid">
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">IAE's NIRF Catalyst gave us real-time visibility into our data gaps for the first time. We improved our NIRF score by 9 points in a single cycle — something we couldn't achieve in three previous attempts.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">VC</div>
+          <div>
+            <div class="testi-name">Vice Chancellor</div>
+            <div class="testi-role">State University, Telangana</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">The NAAC Simulator helped our IQAC team identify exactly where we were underperforming before the peer team visit. We achieved A+ — our highest grade ever.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">PR</div>
+          <div>
+            <div class="testi-name">Principal &amp; IQAC Coordinator</div>
+            <div class="testi-role">Autonomous College, Karnataka</div>
+          </div>
+        </div>
+      </div>
+      <div class="testi-card">
+        <div class="testi-quote">"</div>
+        <p class="testi-text">From IDP design to NEP curriculum mapping, IAE's team was our strategic partner throughout. Their platform integrations made data collection effortless for our faculty.</p>
+        <div class="testi-author">
+          <div class="testi-avatar">DR</div>
+          <div>
+            <div class="testi-name">Director, Academic Affairs</div>
+            <div class="testi-role">Deemed University, Maharashtra</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── CTA BAND ───────────────────────────────────── -->
+<div class="cta-band">
+  <div class="cta-band-bg"></div>
+  <div class="container cta-band-inner">
+    <h2>Ready to Upgrade Your Institution's<br/>Rankings &amp; Accreditation?</h2>
+    <p>Book a free 45-minute institutional audit with our senior consultants. We'll show you exactly where you stand and what's possible.</p>
+    <div class="cta-actions">
+      <a href="#" class="btn-white">Book Free Audit →</a>
+      <a href="#" class="btn-outline-white">View Platform Demo</a>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ────────────────────────────────────── -->
+<footer>
+  <div class="container">
+    <div class="footer-grid">
+      <div class="footer-brand">
+        <div class="footer-logo">IAE</div>
+        <p>Institute for Academic Excellence — India's leading EdSaaS platform and advisory firm for Higher Educational Institutions. Trusted by 2,000+ HEIs across India.</p>
+      </div>
+      <div class="footer-col">
+        <h4>Platform</h4>
+        <ul>
+          <li><a href="#">NIRF Catalyst</a></li>
+          <li><a href="#">FIS</a></li>
+          <li><a href="#">NBA Navigator</a></li>
+          <li><a href="#">Professor 360</a></li>
+          <li><a href="#">NAAC Simulator</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Consulting</h4>
+        <ul>
+          <li><a href="#">NAAC Consulting</a></li>
+          <li><a href="#">NIRF Consulting</a></li>
+          <li><a href="#">NBA Consulting</a></li>
+          <li><a href="#">IDP Services</a></li>
+          <li><a href="#">Academic Audit</a></li>
+        </ul>
+      </div>
+      <div class="footer-col">
+        <h4>Company</h4>
+        <ul>
+          <li><a href="#">About IAE</a></li>
+          <li><a href="#">Events &amp; Workshops</a></li>
+          <li><a href="#">Blog</a></li>
+          <li><a href="#">Careers</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 Institute for Academic Excellence. All rights reserved.</span>
+      <span style="font-family:var(--font-mono);font-size:0.68rem;letter-spacing:0.08em">NAAC · NIRF · NBA · NEP 2020 · UGC</span>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
